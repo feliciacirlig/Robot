@@ -25,49 +25,71 @@
 // 1 3 N
 
 
-function moveRobot(position, instructions){
+// Dacă un roboțel primește o comandă ce îl face să iasă de pe hartă, toate
+// comenzile ulterioare vor fi ignorate, iar la final va fi adăugat textul RIP după
+// coordonatele sale înaintea ieșirii de pe hartă.
+
+
+const moveRobot = (position, instructions,endPos) => {
+    // const returnString = "`${xPos} ${yPos} ${orientation}`";
+    const [maxPosX, maxPosY] = endPos;
+    let [xPos, yPos, orientation] = position;
+
     for (const ins of instructions){
         switch (ins) {
             case "L":  {
-                switch (position[2]){            
-                    case "N": position[2]="V"; continue;
-                    case "S": position[2]="E"; continue;
-                    case "V": position[2]="S"; continue;
-                    case "E": position[2]="N"; continue;                    
+                switch (orientation){            
+                    case "N": orientation="V"; continue;
+                    case "S": orientation="E"; continue;
+                    case "V": orientation="S"; continue;
+                    case "E": orientation="N"; continue;                    
                 }
             }
             case "R":  {
-                switch (position[2]){
-                    case "N": position[2]="E"; continue;
-                    case "S": position[2]="V"; continue;
-                    case "V": position[2]="N"; continue;
-                    case "E": position[2]="S"; continue;                    
+                switch (orientation){
+                    case "N": orientation="E"; continue;
+                    case "S": orientation="V"; continue;
+                    case "V": orientation="N"; continue;
+                    case "E": orientation="S"; continue;                    
                 }
             }
             case "M":  {
-                switch (position[2]){
-                    case "N": position[1] += 1; continue;
-                    case "S": position[1] -= 1; continue;
-                    case "V": position[0] -= 1; continue;
-                    case "E": position[0] += 1; continue;
+                switch (orientation){
+                    case "N": if ( (yPos + 1) > maxPosY){ 
+                                return `${xPos} ${yPos} ${orientation} RIP`;} 
+                              else { yPos += 1; continue;}
+                    case "S": if ( (yPos - 1) < 0){ 
+                                return `${xPos} ${yPos} ${orientation} RIP`;}
+                              else { yPos -= 1; continue;}
+                    case "V": if ( (xPos - 1) < 0){ 
+                                return `${xPos} ${yPos} ${orientation} RIP`;}
+                              else { xPos -= 1; continue;}
+                    case "E": if ( (xPos + 1) > maxPosX){ 
+                                return `${xPos} ${yPos} ${orientation} RIP`;}
+                              else { xPos += 1; continue;}
                 }
             }
         }
     }
-    return position;
+    return `${xPos} ${yPos} ${orientation}`;
 }
 
+const endPos = [5,5];
 
-const dimPlatou={
-    startPos:[0,0],
-    endPos:[5,5]
-};
-
-let position = [1, 2, "N"],
-    instructions = "LMLMLMLMM";
-console.log(moveRobot(position,instructions)); // 1, 3, "N"
+let position = [1, 5, "N"],
+    instructions = "LMMRMLMRM";
+console.log(moveRobot(position,instructions,endPos)); // 0 5 V RIP
 
 
 position = [3, 3, "E"],
 instructions = "MMRMMRMRRM";
-console.log(moveRobot(position,instructions)); // 5 , 1, "E"
+console.log(moveRobot(position,instructions,endPos)); // 5 , 1, "E"
+
+
+position = [3, 3, "S"],
+instructions = "MMMM";
+console.log(moveRobot(position,instructions,endPos)); // 3 , 0, "S"
+
+position = [3, 3, "V"],
+instructions = "MMMM";
+console.log(moveRobot(position,instructions,endPos)); // 0 , 3, "V"
