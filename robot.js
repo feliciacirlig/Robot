@@ -29,46 +29,74 @@
 // comenzile ulterioare vor fi ignorate, iar la final va fi adăugat textul RIP după
 // coordonatele sale înaintea ieșirii de pe hartă.
 
+const moveLeft = (orientation) => {
+    switch (orientation){            
+        case "N": return "V";
+        case "S": return "E";
+        case "V": return "S";
+        case "E": return "N";
+    }
+} 
+
+const moveRight = (orientation) => {
+    switch (orientation){
+        case "N": return "E";
+        case "S": return "V";
+        case "V": return "N"; 
+        case "E": return "S"; 
+    }
+}
+
+const movement = (xPos, yPos, orientation,maxPosX, maxPosY) => {
+    let rip = "";
+    switch (orientation){
+        case "N": if ( (yPos + 1) > maxPosY){ 
+                    rip = "X";
+                  } 
+                  else { yPos += 1;}
+                  return [xPos,yPos,orientation,rip];
+        case "S": if ( (yPos - 1) < 0){ 
+                    rip = "X";
+                   }
+                  else { yPos -= 1;}
+                  return [xPos,yPos,orientation,rip];
+        case "V": if ( (xPos - 1) < 0){ 
+                    rip = "X"; 
+                }
+                  else { xPos -= 1; }
+                  return [xPos,yPos,orientation,rip];
+        case "E": if ( (xPos + 1) > maxPosX){ 
+                    rip = "X";
+                   }
+                  else { xPos += 1;}
+                    return [xPos,yPos,orientation,rip];
+    }
+}
 
 const moveRobot = (position, instructions,endPos) => {
-    // const returnString = "`${xPos} ${yPos} ${orientation}`";
     const [maxPosX, maxPosY] = endPos;
     let [xPos, yPos, orientation] = position;
 
     for (const ins of instructions){
         switch (ins) {
             case "L":  {
-                switch (orientation){            
-                    case "N": orientation="V"; continue;
-                    case "S": orientation="E"; continue;
-                    case "V": orientation="S"; continue;
-                    case "E": orientation="N"; continue;                    
-                }
+                orientation = moveLeft(orientation);
+                continue;
             }
             case "R":  {
-                switch (orientation){
-                    case "N": orientation="E"; continue;
-                    case "S": orientation="V"; continue;
-                    case "V": orientation="N"; continue;
-                    case "E": orientation="S"; continue;                    
-                }
+                orientation = moveRight(orientation);
+                continue;
             }
             case "M":  {
-                switch (orientation){
-                    case "N": if ( (yPos + 1) > maxPosY){ 
-                                return `${xPos} ${yPos} ${orientation} RIP`;} 
-                              else { yPos += 1; continue;}
-                    case "S": if ( (yPos - 1) < 0){ 
-                                return `${xPos} ${yPos} ${orientation} RIP`;}
-                              else { yPos -= 1; continue;}
-                    case "V": if ( (xPos - 1) < 0){ 
-                                return `${xPos} ${yPos} ${orientation} RIP`;}
-                              else { xPos -= 1; continue;}
-                    case "E": if ( (xPos + 1) > maxPosX){ 
-                                return `${xPos} ${yPos} ${orientation} RIP`;}
-                              else { xPos += 1; continue;}
-                }
+                let rip = "";
+                [xPos,yPos,orientation,rip] = movement(xPos,yPos,orientation,maxPosX, maxPosY); 
+                
+                if (rip){ return xPos + " " + yPos + " " + orientation + " " + "RIP";} 
+                
+                continue;    
             }
+            default: 
+            console.log("S-a gasit o comanda gresita");
         }
     }
     return `${xPos} ${yPos} ${orientation}`;
